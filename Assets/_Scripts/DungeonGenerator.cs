@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
@@ -8,7 +9,13 @@ public class DungeonGenerator : MonoBehaviour
 {
     [SerializeField] Grid grid;
     [SerializeField] Tilemap tilemap;
+
+    [Header("UI's")]
     [SerializeField] Button buttonGen;
+    [SerializeField] Slider sliderDepth;
+    [SerializeField] TextMeshProUGUI depthText;
+    [SerializeField] Slider divideRate;
+    [SerializeField] TextMeshProUGUI divideRateText;
 
     [Header("Genrator Settings")]
     [SerializeField] Vector2Int mapSize;
@@ -19,7 +26,15 @@ public class DungeonGenerator : MonoBehaviour
     void Awake()
     {
         buttonGen.onClick.AddListener(GenerateDungeon);
+        sliderDepth.onValueChanged.AddListener(DepthChanged);
+        divideRate.onValueChanged.AddListener(DivideRateChanged);
+
+        depthText.text = maximumDepth.ToString();
+        divideRateText.text = $"{minimumDivideRate} : {maximumDivideRate}";
     }
+
+
+
 
     bool isGened;
     void GenerateDungeon()
@@ -159,6 +174,21 @@ public class DungeonGenerator : MonoBehaviour
         GenerateLoad(tree.rightNode, n + 1);
     }
 
+
+
+    void DepthChanged(float depth)
+    {
+        maximumDepth = ( int ) depth;
+        depthText.text = maximumDepth.ToString();
+    }
+
+    void DivideRateChanged(float rate )
+    {
+        maximumDivideRate = rate*0.1f;
+        minimumDivideRate = 1-maximumDivideRate;
+
+        divideRateText.text = $"{minimumDivideRate} : {maximumDivideRate}";
+    }
 }
 
 public class Node
