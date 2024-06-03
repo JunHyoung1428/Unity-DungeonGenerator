@@ -293,7 +293,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -80, y: -50}
+  m_AnchoredPosition: {x: -160, y: -100}
   m_SizeDelta: {x: 160, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &157172065
@@ -360,8 +360,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: -666184732, guid: 9efafdf1bfd82464a9aa0a0e5e66213c, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -546,7 +546,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 40
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -856,12 +856,12 @@ MonoBehaviour:
   tilemap: {fileID: 0}
   buttonGen: {fileID: 157172065}
   mapSize: {x: 64, y: 64}
-  maximumDetph: 5
-  maximumDivideRate: 0.6
-  minimumDivideRate: 0.4
+  maximumDepth: 5
+  maximumDivideRate: 0.7
+  minimumDivideRate: 0.3
   map: {fileID: 3210212285798623098, guid: 2d3e78a080e9c73428fb766f8d929915, type: 3}
   line: {fileID: 3210212285798623098, guid: 92b3b54a50627b34eb493e9317454719, type: 3}
-  room: {fileID: 0}
+  room: {fileID: 3210212285798623098, guid: de42ab69ebb563f4aa0355f0c6538b10, type: 3}
 --- !u!4 &1763873738
 Transform:
   m_ObjectHideFlags: 0

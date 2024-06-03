@@ -10,9 +10,9 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] Tilemap tilemap;
     [SerializeField] Button buttonGen;
 
-
+    [Header("Genrator Settings")]
     [SerializeField] Vector2Int mapSize;
-    [SerializeField] int maximumDetph;
+    [SerializeField] int maximumDepth;
     [SerializeField] float maximumDivideRate;
     [SerializeField] float minimumDivideRate;
 
@@ -30,6 +30,8 @@ public class DungeonGenerator : MonoBehaviour
         Node root = new Node(new RectInt(0, 0, mapSize.x, mapSize.y));
         DrawMap(0, 0);
         Divide(root, 0);
+        GenerateRoom(root, 0);
+
         isGened = true;
     }
 
@@ -41,7 +43,8 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-
+    [Space(10)]
+    [Header("Line")]
     [SerializeField] LineRenderer map;
     [SerializeField] LineRenderer line;
     [SerializeField] LineRenderer room;
@@ -59,7 +62,7 @@ public class DungeonGenerator : MonoBehaviour
 
     void Divide(Node tree, int n)
     {
-        if ( n == maximumDetph )
+        if ( n == maximumDepth )
             return;
 
 
@@ -95,6 +98,41 @@ public class DungeonGenerator : MonoBehaviour
         lineRenderer.SetPosition(1, end - mapSize / 2);
     }
 
+
+    RectInt GenerateRoom(Node tree, int n)
+    {
+        RectInt rect;
+        if ( n == maximumDepth ) //해당 노드가 리프노드라면 방 생성
+        {
+            rect = tree.nodeRect;
+            int width = Random.Range(rect.width / 2, rect.width - 1);
+            //방의 가로 최소 크기는 노드의 가로길이의 절반, 최대 크기는 가로길이보다 1 작게 설정한 후 그 사이 값중 랜덤한 값을 구해준다.
+            int height = Random.Range(rect.height / 2, rect.height - 1);
+            //높이도 위와 같다.
+            int x = rect.x + Random.Range(1, rect.width - width);
+            //방의 x좌표이다. 만약 0이 된다면 붙어 있는 방과 합쳐지기 때문에,최솟값은 1로 해주고, 최댓값은 기존 노드의 가로에서 방의 가로길이를 빼 준 값이다.
+            int y = rect.y + Random.Range(1, rect.height - height);
+            //y좌표도 위와 같다.
+            rect = new RectInt(x, y, width, height);
+            DrawRoom(rect);
+        }
+        else
+        {
+            tree.leftNode.roomRect = GenerateRoom(tree.leftNode, n + 1);
+            tree.rightNode.roomRect = GenerateRoom(tree.rightNode, n + 1);
+            rect = tree.leftNode.roomRect;
+        }
+        return rect;
+    }
+
+    void DrawRoom(RectInt rect)
+    {
+        LineRenderer lineRenderer = Instantiate(room,transform);
+        lineRenderer.SetPosition(0, new Vector2(rect.x, rect.y) - mapSize / 2); //좌측 하단
+        lineRenderer.SetPosition(1, new Vector2(rect.x + rect.width, rect.y) - mapSize / 2); //우측 하단
+        lineRenderer.SetPosition(2, new Vector2(rect.x + rect.width, rect.y + rect.height) - mapSize / 2);//우측 상단
+        lineRenderer.SetPosition(3, new Vector2(rect.x, rect.y + rect.height) - mapSize / 2); //좌측 상
+    }
 }
 
 public class Node
@@ -102,7 +140,18 @@ public class Node
     public Node leftNode;
     public Node rightNode;
     public Node parNode;
+
     public RectInt nodeRect; //분리된 공간의 rect정보
+    public RectInt roomRect; // '' room 정보
+
+    public Vector2Int center
+    {
+        get
+        {
+            return new Vector2Int(roomRect.x + roomRect.width / 2, roomRect.y + roomRect.height / 2);
+        }
+    } //방 가운데 점
+
     public Node( RectInt rect )
     {
         this.nodeRect = rect;
