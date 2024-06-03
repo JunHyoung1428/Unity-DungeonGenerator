@@ -862,6 +862,8 @@ MonoBehaviour:
   map: {fileID: 3210212285798623098, guid: 2d3e78a080e9c73428fb766f8d929915, type: 3}
   line: {fileID: 3210212285798623098, guid: 92b3b54a50627b34eb493e9317454719, type: 3}
   room: {fileID: 3210212285798623098, guid: de42ab69ebb563f4aa0355f0c6538b10, type: 3}
+  showSpace: 1
+  showLoad: 0
 --- !u!4 &1763873738
 Transform:
   m_ObjectHideFlags: 0

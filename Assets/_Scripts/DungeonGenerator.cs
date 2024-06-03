@@ -32,6 +32,9 @@ public class DungeonGenerator : MonoBehaviour
         Divide(root, 0);
         GenerateRoom(root, 0);
 
+        if(showLoad)
+            GenerateLoad(root, 0);
+
         isGened = true;
     }
 
@@ -48,6 +51,11 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] LineRenderer map;
     [SerializeField] LineRenderer line;
     [SerializeField] LineRenderer room;
+
+
+    [Space(10)]
+    [SerializeField] bool showSpace;
+    [SerializeField] bool showLoad;
 
     //Use BSP Algorithm
 
@@ -76,13 +84,15 @@ public class DungeonGenerator : MonoBehaviour
             //위치는 좌측 하단 기준이므로 변하지 않으며, 가로 길이는 위에서 구한 랜덤값을 넣어준다.
             tree.rightNode = new Node(new RectInt(tree.nodeRect.x + split, tree.nodeRect.y, tree.nodeRect.width - split, tree.nodeRect.height));
             //위치는 좌측 하단에서 오른쪽으로 가로 길이만큼 이동한 위치이며, 가로 길이는 기존 가로길이에서 새로 구한 가로값을 뺀 나머지 부분이 된다.
-            DrawLine(new Vector2(tree.nodeRect.x + split, tree.nodeRect.y), new Vector2(tree.nodeRect.x + split, tree.nodeRect.y + tree.nodeRect.height));
+            if(showSpace)
+                DrawLine(new Vector2(tree.nodeRect.x + split, tree.nodeRect.y), new Vector2(tree.nodeRect.x + split, tree.nodeRect.y + tree.nodeRect.height));
         }
         else
         {
             tree.leftNode = new Node(new RectInt(tree.nodeRect.x, tree.nodeRect.y, tree.nodeRect.width, split));
             tree.rightNode = new Node(new RectInt(tree.nodeRect.x, tree.nodeRect.y + split, tree.nodeRect.width, tree.nodeRect.height - split));
-            DrawLine(new Vector2(tree.nodeRect.x, tree.nodeRect.y + split), new Vector2(tree.nodeRect.x + tree.nodeRect.width, tree.nodeRect.y + split));
+            if(showSpace)
+                DrawLine(new Vector2(tree.nodeRect.x, tree.nodeRect.y + split), new Vector2(tree.nodeRect.x + tree.nodeRect.width, tree.nodeRect.y + split));
         }
         tree.leftNode.parNode = tree; 
         tree.rightNode.parNode = tree;
@@ -133,6 +143,22 @@ public class DungeonGenerator : MonoBehaviour
         lineRenderer.SetPosition(2, new Vector2(rect.x + rect.width, rect.y + rect.height) - mapSize / 2);//우측 상단
         lineRenderer.SetPosition(3, new Vector2(rect.x, rect.y + rect.height) - mapSize / 2); //좌측 상
     }
+
+    private void GenerateLoad( Node tree, int n )
+    {
+        if ( n == maximumDepth ) 
+            return;
+        Vector2Int leftNodeCenter = tree.leftNode.center;
+        Vector2Int rightNodeCenter = tree.rightNode.center;
+
+        DrawLine(new Vector2(leftNodeCenter.x, leftNodeCenter.y), new Vector2(rightNodeCenter.x, leftNodeCenter.y));
+        //세로 기준을 leftnode에 맞춰서 가로 선으로 연결해줌.
+        DrawLine(new Vector2(rightNodeCenter.x, leftNodeCenter.y), new Vector2(rightNodeCenter.x, rightNodeCenter.y));
+        //가로 기준을 rightnode에 맞춰서 세로 선으로 연결해줌.
+        GenerateLoad(tree.leftNode, n + 1); //자식 노드들도 탐색
+        GenerateLoad(tree.rightNode, n + 1);
+    }
+
 }
 
 public class Node
