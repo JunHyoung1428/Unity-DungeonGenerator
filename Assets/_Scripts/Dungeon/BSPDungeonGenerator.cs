@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
-public class DungeonGenerator : MonoBehaviour
+public class BSPDungeonGenerator : MonoBehaviour
 {
     [SerializeField] Grid grid;
     [SerializeField] Tilemap tilemap;
