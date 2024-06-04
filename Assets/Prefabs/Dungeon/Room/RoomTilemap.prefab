@@ -277,7 +277,7 @@ Tilemap:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Origin: {x: -10, y: -12, z: 0}
   m_Size: {x: 20, y: 17, z: 1}
-  m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
+  m_TileAnchor: {x: 0, y: 0, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
     e00: 1
@@ -357,9 +357,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fba74369fca3a7438edbfea2b1724c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rb: {fileID: 6846640405769114380}
+  rigidBody: {fileID: 6846640405769114380}
   tilemap: {fileID: 4942606257639115482}
   tile: {fileID: 11400000, guid: f028b8ad03ef1e745a6c9204690b500a, type: 2}
+  sizeX: 0
+  sizeY: 0
 --- !u!50 &6846640405769114380
 Rigidbody2D:
   serializedVersion: 4
@@ -419,7 +421,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.5, y: -0.5}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
