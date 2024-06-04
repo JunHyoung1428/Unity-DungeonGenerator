@@ -9,6 +9,8 @@ public class DungeonGenerator : MonoBehaviour
 {
     [SerializeField] Grid grid;
     [SerializeField] Tilemap tilemap;
+    [SerializeField] TileBase tile;
+
 
     [Header("UI's")]
     [SerializeField] Button buttonGen;
@@ -42,10 +44,12 @@ public class DungeonGenerator : MonoBehaviour
         if(isGened)
             ClearDungeon();
 
+        tilemap.size = new Vector3Int (mapSize.x, mapSize.y , 0);
         Node root = new Node(new RectInt(0, 0, mapSize.x, mapSize.y));
         DrawMap(0, 0);
         Divide(root, 0);
         GenerateRoom(root, 0);
+        grid.transform.position = new Vector3(-mapSize.x *0.5f, -mapSize.y*0.5f, 0);
 
         if(showLoad)
             GenerateLoad(root, 0);
@@ -59,18 +63,23 @@ public class DungeonGenerator : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
+        tilemap.ClearAllTiles();
     }
 
     [Space(10)]
-    [Header("Line")]
+    [Header("Lines for Visualize")]
     [SerializeField] LineRenderer map;
     [SerializeField] LineRenderer line;
     [SerializeField] LineRenderer room;
 
 
     [Space(10)]
+    [SerializeField] bool visualizeLine;
+    [SerializeField] bool visualizeTileMap;
     [SerializeField] bool showSpace;
     [SerializeField] bool showLoad;
+
 
     //Use BSP Algorithm
 
@@ -90,7 +99,7 @@ public class DungeonGenerator : MonoBehaviour
 
 
         int maxLength = Mathf.Max(tree.nodeRect.width, tree.nodeRect.height);
-        //가로와 세로중 더 긴것을 구한후, 가로가 길다면 위 좌, 우로 세로가 더 길다면 위, 아래로 나눠주게 될 것이다.
+        //가로와 세로중 더 긴것을 구한후, 가로가 길다면 위 좌, 우로 세로가 더 길다면 위, 아래로 나눠줌.
         int split = Mathf.RoundToInt(Random.Range(maxLength * minimumDivideRate, maxLength * maximumDivideRate));
         //나올 수 있는 최대 길이와 최소 길이중에서 랜덤으로 한 값을 선택
         if ( tree.nodeRect.width >= tree.nodeRect.height ) //가로가 더 길었던 경우에는 좌 우로 나누게 될 것이며, 이 경우에는 세로 길이는 변하지 않는다.
@@ -139,7 +148,7 @@ public class DungeonGenerator : MonoBehaviour
             int y = rect.y + Random.Range(1, rect.height - height);
             //y좌표도 위와 같다.
             rect = new RectInt(x, y, width, height);
-            DrawRoom(rect);
+            DrawRoom( rect);
         }
         else
         {
@@ -150,13 +159,24 @@ public class DungeonGenerator : MonoBehaviour
         return rect;
     }
 
-    void DrawRoom(RectInt rect)
+    void DrawRoom( RectInt rect)
     {
-        LineRenderer lineRenderer = Instantiate(room,transform);
-        lineRenderer.SetPosition(0, new Vector2(rect.x, rect.y) - mapSize / 2); //좌측 하단
-        lineRenderer.SetPosition(1, new Vector2(rect.x + rect.width, rect.y) - mapSize / 2); //우측 하단
-        lineRenderer.SetPosition(2, new Vector2(rect.x + rect.width, rect.y + rect.height) - mapSize / 2);//우측 상단
-        lineRenderer.SetPosition(3, new Vector2(rect.x, rect.y + rect.height) - mapSize / 2); //좌측 상
+        if ( visualizeLine )
+        {
+            LineRenderer lineRenderer = Instantiate(room, transform);
+            lineRenderer.SetPosition(0, new Vector2(rect.x, rect.y) - mapSize / 2); //좌측 하단
+            lineRenderer.SetPosition(1, new Vector2(rect.x + rect.width, rect.y) - mapSize / 2); //우측 하단
+            lineRenderer.SetPosition(2, new Vector2(rect.x + rect.width, rect.y + rect.height) - mapSize / 2);//우측 상단
+            lineRenderer.SetPosition(3, new Vector2(rect.x, rect.y + rect.height) - mapSize / 2); //좌측 상
+        }
+
+        if ( visualizeTileMap )
+        {
+            //! Tilemap 그릴때 postion을 worldToCell로 변환해줘야함 
+            Vector3Int startPos = tilemap.WorldToCell(new Vector3(rect.x, rect.y, 0));
+            Vector3Int endPos = tilemap.WorldToCell(new Vector3(rect.x +rect.width, rect.y + rect.height, 0));
+            tilemap.BoxFill(startPos, tile, startPos.x, startPos.y, endPos.x, endPos.y);
+        }
     }
 
     private void GenerateLoad( Node tree, int n )
@@ -195,7 +215,7 @@ public class Node
 {
     public Node leftNode;
     public Node rightNode;
-    public Node parNode;
+    public Node parNode; //부모노드
 
     public RectInt nodeRect; //분리된 공간의 rect정보
     public RectInt roomRect; // '' room 정보
