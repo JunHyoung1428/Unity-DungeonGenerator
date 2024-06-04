@@ -12,9 +12,10 @@ namespace Delaunay
             var superTriangle = CalcSuperTriangle( vertices );
             var triangulation = new HashSet<Triangle> { superTriangle };
 
+            //각 Vertex에 대해 수행
             foreach ( var vertex in vertices )
             {
-                // 정점이 삼각형 안에 있는 경우를 담기 위한 HashSet
+                // 정점이 삼각형 안에 있는 경우(badTriangles)를 담기 위한 HashSet
                 HashSet<Triangle> badTriangles = new HashSet<Triangle>();
                 foreach ( var triangle in triangulation )
                 {
@@ -44,6 +45,7 @@ namespace Delaunay
                             polygon.Add(edge);
                     }
                 }
+                // HashSet에서 badTriangles 제거
                 triangulation.ExceptWith(badTriangles);
 
                 foreach ( var edge in polygon )
@@ -51,6 +53,8 @@ namespace Delaunay
                     triangulation.Add(new Triangle(vertex, edge.a, edge.b));
                 }
             }
+
+            // 슈퍼삼각형(과 같은 정점을 공유하는 삼각형) 제거
             triangulation.RemoveWhere(( Triangle t ) => t.HasSameVertex(superTriangle));
 
             return triangulation;
