@@ -19,7 +19,7 @@ public class BSPDungeonGenerator : MonoBehaviour
     [SerializeField] Slider divideRate;
     [SerializeField] TextMeshProUGUI divideRateText;
 
-    [Header("Genrator Settings")]
+    [Header("Generator Settings")]
     [SerializeField] Vector2Int mapSize;
     [SerializeField] int maximumDepth;
     [SerializeField] float maximumDivideRate;
@@ -44,12 +44,14 @@ public class BSPDungeonGenerator : MonoBehaviour
         if(isGened)
             ClearDungeon();
 
-        tilemap.size = new Vector3Int (mapSize.x, mapSize.y , 0);
+       
         Node root = new Node(new RectInt(0, 0, mapSize.x, mapSize.y));
+        tilemap.size = new Vector3Int(mapSize.x, mapSize.y, 0);
+        //grid.transform.position = new Vector3(-mapSize.x * 0.5f, -mapSize.y * 0.5f, 0);
         DrawMap(0, 0);
         Divide(root, 0);
         GenerateRoom(root, 0);
-        grid.transform.position = new Vector3(-mapSize.x *0.5f, -mapSize.y*0.5f, 0);
+       
 
         if(showLoad)
             GenerateLoad(root, 0);
@@ -173,8 +175,8 @@ public class BSPDungeonGenerator : MonoBehaviour
         if ( visualizeTileMap )
         {
             //! Tilemap 그릴때 postion을 worldToCell로 변환해줘야함 
-            Vector3Int startPos = tilemap.WorldToCell(new Vector3(rect.x, rect.y, 0));
-            Vector3Int endPos = tilemap.WorldToCell(new Vector3(rect.x +rect.width, rect.y + rect.height, 0));
+            Vector3Int startPos = tilemap.WorldToCell(new Vector3(rect.x - mapSize.x / 2, rect.y - mapSize.y / 2, 0));
+            Vector3Int endPos = tilemap.WorldToCell(new Vector3(rect.x +rect.width - mapSize.x / 2, rect.y + rect.height - mapSize.y / 2, 0));
             tilemap.BoxFill(startPos, tile, startPos.x, startPos.y, endPos.x, endPos.y);
         }
     }
