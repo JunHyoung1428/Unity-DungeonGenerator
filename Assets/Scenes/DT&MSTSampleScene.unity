@@ -1660,7 +1660,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1763873738}
-  - component: {fileID: 1763873737}
+  - component: {fileID: 1763873739}
   m_Layer: 0
   m_Name: DunegeonGenerator
   m_TagString: Untagged
@@ -1668,37 +1668,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1763873737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1763873736}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62f720ff4d5fbcf4a817a68dc7d8a5cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grid: {fileID: 1891799094}
-  tilemap: {fileID: 5953965855527667575}
-  tile: {fileID: 11400000, guid: f028b8ad03ef1e745a6c9204690b500a, type: 2}
-  buttonGen: {fileID: 157172065}
-  sliderDepth: {fileID: 745730766}
-  depthText: {fileID: 1989478365}
-  divideRate: {fileID: 752043199}
-  divideRateText: {fileID: 2054221891}
-  mapSize: {x: 64, y: 64}
-  maximumDepth: 5
-  maximumDivideRate: 0.7
-  minimumDivideRate: 0.3
-  map: {fileID: 3210212285798623098, guid: 2d3e78a080e9c73428fb766f8d929915, type: 3}
-  line: {fileID: 3210212285798623098, guid: 92b3b54a50627b34eb493e9317454719, type: 3}
-  room: {fileID: 3210212285798623098, guid: de42ab69ebb563f4aa0355f0c6538b10, type: 3}
-  visualizeLine: 1
-  visualizeTileMap: 1
-  showSpace: 0
-  showLoad: 1
 --- !u!4 &1763873738
 Transform:
   m_ObjectHideFlags: 0
@@ -1714,6 +1683,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1763873739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763873736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 265e3b51e9fd93240a36cd33434fbbb7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1834300426
 GameObject:
   m_ObjectHideFlags: 0
