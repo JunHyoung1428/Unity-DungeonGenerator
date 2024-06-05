@@ -3656,17 +3656,20 @@ MonoBehaviour:
   loadRatioText: {fileID: 1298277939}
   gridObject: {fileID: 371905753}
   roomPrefab: {fileID: 6293823128992485547, guid: 0e3951d3af22b814f836b33c116a2d21, type: 3}
-  lineRenderer: {fileID: 3210212285798623098, guid: 92b3b54a50627b34eb493e9317454719, type: 3}
+  graphRenderer: {fileID: 3210212285798623098, guid: 92b3b54a50627b34eb493e9317454719, type: 3}
+  doorPrefab: {fileID: 7746263379588475616, guid: b2973571cab92fb459ed2c2149c4af08, type: 3}
+  corridor: {fileID: 3210212285798623098, guid: 4fa312037d7764548bce040f0f0817cb, type: 3}
   roomLayer: 1
-  generateRoomCnt: 30
-  selectRoomCnt: 20
+  generateRoomCnt: 10
+  selectRoomCnt: 5
   minRoomSize: 10
   maxRoomSize: 15
   smallMinRoomSize: 5
   smallMaxRoomSize: 10
   overlapOffset: 0
-  addingLoadRatio: 0
-  waitTime: 10
+  offSet: 0
+  addingLoadRatio: 20
+  waitTime: 5
   randomPoint: 10
 --- !u!1 &1834300426
 GameObject:
@@ -4129,7 +4132,9 @@ MonoBehaviour:
   loadRatioText: {fileID: 0}
   gridObject: {fileID: 371905753}
   roomPrefab: {fileID: 0}
-  lineRenderer: {fileID: 0}
+  graphRenderer: {fileID: 0}
+  doorPrefab: {fileID: 0}
+  corridor: {fileID: 0}
   roomLayer: 0
   generateRoomCnt: 0
   selectRoomCnt: 0
@@ -4138,6 +4143,7 @@ MonoBehaviour:
   smallMinRoomSize: 0
   smallMaxRoomSize: 0
   overlapOffset: 0
+  offSet: 0
   addingLoadRatio: 30
   waitTime: 5
   randomPoint: 5
