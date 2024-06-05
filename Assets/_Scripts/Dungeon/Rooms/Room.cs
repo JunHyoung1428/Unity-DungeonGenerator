@@ -55,6 +55,8 @@ public class Room : MonoBehaviour
         rigidBody.bodyType = RigidbodyType2D.Dynamic;
         rigidBody.gravityScale = 0f;
         yield return new WaitForSeconds(waitTime);
+        rigidBody.bodyType = RigidbodyType2D.Kinematic;
+        
         //Destroy(composite);
         // Destroy(rigidBody);
 

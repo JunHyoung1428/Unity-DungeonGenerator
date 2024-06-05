@@ -5,6 +5,7 @@ using Delaunay;
 using UnityEngine.UI;
 using System.Linq;
 using TMPro;
+using UnityEditor;
 
 /// <summary>
 /// Create Dungeon with Delaunay Triangulation(DT) + Minimum Spanning Tree(MST)
@@ -15,12 +16,16 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] Button buttonGen;
     [SerializeField] Button buttonClear;
     [SerializeField] Slider counterSlider;
-    [SerializeField] TextMeshProUGUI text;
+    [SerializeField] Slider loadRatioSlider;
+    [SerializeField] TextMeshProUGUI roomCounttext;
+    [SerializeField] TextMeshProUGUI loadRatioText;
 
 
     [Header("Prefabs")]
     [SerializeField]  protected GameObject gridObject; // tilemap Grid
     [SerializeField]  Room roomPrefab; // room
+    [SerializeField]  LineRenderer lineRenderer; //for Visualize 
+
 
     [Header("Room Settings")]
     [SerializeField] int roomLayer;
@@ -35,6 +40,10 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] protected int smallMinRoomSize;
     [SerializeField] protected int smallMaxRoomSize;
     [SerializeField] protected int overlapOffset;
+
+    [Space(10)]
+    [Range(0,100)]
+    [SerializeField] int addingLoadRatio =30;
 
     //for define pixel Size
     const int PIXEL = 1;
@@ -53,18 +62,35 @@ public class DungeonGenerator : MonoBehaviour
         buttonGen.onClick.AddListener(GenerateDungeon);
         buttonClear.onClick.AddListener(ClearDungeons);
         counterSlider.onValueChanged.AddListener(counterChanged);
+        loadRatioSlider.onValueChanged.AddListener(ratioChanged);
         counterChanged(generateRoomCnt);
     }
 
     void counterChanged(float value )
     {
         generateRoomCnt = (int)value;
-        text.text = generateRoomCnt.ToString();
+        roomCounttext.text = generateRoomCnt.ToString();
+    }
+
+    void ratioChanged(float value )
+    {
+        addingLoadRatio = (int)value;
+        loadRatioText.text= addingLoadRatio.ToString();
+
+        foreach ( Transform child in transform )
+        {
+            Destroy(child.gameObject);
+        }
+        StartCoroutine(ConnectRooms());
     }
 
     public void ClearDungeons()
     {
         foreach ( Transform child in gridObject.transform )
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in transform )
         {
             Destroy(child.gameObject);
         }
@@ -76,18 +102,27 @@ public class DungeonGenerator : MonoBehaviour
         StartCoroutine(SpreadRoomRoutine());
 
         // 방 중 Main 룸(일정 크기 이상의) 고르기
-        FindMainRooms();
+        //FindMainRooms();
 
         // 룸 정보를 2차원 배열에 추가
-        GenerateMapArray();
+        //GenerateMapArray();
 
-        // DT + MST 이용해서 룸 연결
-        ConnectRooms();
+        // DT + MST 이용해서 룸 연결 (그래프)
+       // ConnectRooms();
+
+        // 복도 그려서 연결
+
+        // 얻어진 데이터를 Tilemap에 다시 그려냄 -> 데이터는 DungeonManager에 넘겨줘서 이후 작업들은 거기서 제어할것
     }
 
     [Header("SpreadRoom Setting")]
     [SerializeField] protected float waitTime = 3.0f;
     [SerializeField] protected int randomPoint = 5;
+
+    /// <summary>
+    /// Step.1 RandomScale의 공간 생성후,  Unity에서 Rigidbody 의 충돌 연산의 무작위성을 이용해 공간 배치
+    /// </summary>
+    /// <returns></returns>
     protected virtual IEnumerator SpreadRoomRoutine()
     {
         rooms = new List<Room> ();
@@ -97,12 +132,10 @@ public class DungeonGenerator : MonoBehaviour
             if ( i > selectRoomCnt )
             {
                 rooms [i].transform.localScale = GetRandomScale(smallMinRoomSize, smallMaxRoomSize);
-                rooms [i].SetSize();
             }
             else
             {
                 rooms [i].transform.localScale = GetRandomScale(minRoomSize, maxRoomSize);
-                rooms [i].SetSize();
             }
             yield return new WaitForSeconds(0.01f);
         }
@@ -114,9 +147,9 @@ public class DungeonGenerator : MonoBehaviour
         }
         yield return new WaitForSeconds(waitTime);
         Debug.Log("Wait Done...");
-        Destroy(rooms [0].gameObject);
-        rooms.Remove(rooms [0]);
+
         yield return null;
+        StartCoroutine(FindMainRooms());
     }
 
     /// <summary>
@@ -156,22 +189,29 @@ public class DungeonGenerator : MonoBehaviour
         yield return null;
     }
 
-    void FindMainRooms()
+    /// <summary>
+    /// 무작위로 나뉘어진 공간에서, 일정 비율&크기 이상의 공간을 "방"으로 선정
+    /// </summary>
+    IEnumerator FindMainRooms()
     {
+        Debug.Log("Start Find Main Rooms");
         // 각 방의 크기, 비율, 인덱스를 저장할 리스트 생성
         List<(float size, int index)> tmpRooms = new List<(float size, int index)>();
 
         for ( int i = 0; i < rooms.Count; i++ )
         {
-            rooms [i].Rb.bodyType = RigidbodyType2D.Kinematic;
-           // rooms [i].GetComponent<BoxCollider2D>().isTrigger = true;
-            rooms [i].transform.position = new Vector3(RoundPos(rooms [i].transform.position.x, PIXEL), RoundPos(rooms [i].transform.position.y, PIXEL), 1);
-
+            // rooms [i].GetComponent<BoxCollider2D>().isTrigger = true;
+            rooms [i].transform.position = new Vector3(RoundPos(rooms [i].transform.position.x, PIXEL), RoundPos(rooms [i].transform.position.y, PIXEL), 1); //정수 단위로 변환
+            Debug.Log($"Translate to int : {rooms [i].transform.position}");
 
             Vector3 scale = rooms [i].transform.localScale;
             float size = scale.x * scale.y; // 방의 크기(넓이) 계산
             float ratio = scale.x / scale.y; // 방의 비율 계산
-            if ( ratio > 2f || ratio < 0.5f ) continue; // 1:2 또는 2:1 비율을 초과하는 경우 건너뛰기
+            Debug.Log($"Calculate Size & ratiod :  {size} ,  {ratio}");
+
+            if ( ratio > 2f || ratio < 0.5f ) continue; // 1:2 또는 2:1 비율을 초과하는 경우 건너뛰기, (제외하는 과정)
+
+
             tmpRooms.Add((size, i));
         }
 
@@ -191,18 +231,23 @@ public class DungeonGenerator : MonoBehaviour
         {
             if ( count >= selectRoomCnt ) break; // 선택 후 종료
             GameObject room = rooms [roomInfo.index].gameObject;
-            SpriteRenderer renderer = room.GetComponent<SpriteRenderer>();
-            if ( renderer != null )
+            // SpriteRenderer renderer = room.GetComponent<SpriteRenderer>(); <- TilemapReneder 로 교체?
+           /*if ( renderer != null )
             {
-                renderer.color = Color.red;
-            }
+               renderer.color = Color.red;
+            }*/
             room.SetActive(true);
-            points.Add(new Delaunay.Vertex(( int ) room.transform.position.x, ( int ) room.transform.position.y)); // points 리스트에 추가
+            yield return new WaitForSeconds(0.01f);
+            points.Add(new Vertex(( int ) room.transform.position.x, ( int ) room.transform.position.y)); // points 리스트에 추가
             selectedRooms.Add((roomInfo.index, new Vector2(( int ) room.transform.position.x, ( int ) room.transform.position.y)));
             count++;
         }
 
+        yield return null;
+        GenerateMapArray();
     }
+
+
 
     private void GenerateMapArray()
     {
@@ -247,19 +292,50 @@ public class DungeonGenerator : MonoBehaviour
                 }
             }
         }
+
+        StartCoroutine(ConnectRooms());
     }
 
-    void ConnectRooms()
+    IEnumerator ConnectRooms()
     {
         var triangles = DelaunayTriangulation.Triangulate(points);
 
-        var graph = new HashSet<Delaunay.Edge>();
+        var graph = new HashSet<Edge>();
         foreach ( var triangle in triangles )
             graph.UnionWith(triangle.edges);
 
-        hallwayEdges = Kruskal.MST(graph);
+        hallwayEdges = Kruskal.MST(graph , addingLoadRatio);
+        foreach(var edge in hallwayEdges )
+        {
+            yield return new WaitForSeconds(0.01f);
+            DrawLine(edge);
+        }
+
+        StartCoroutine(GenerateHall(hallwayEdges));
+        yield return null;
     }
 
+
+    IEnumerator GenerateHall(IEnumerable <Edge> tree)
+    {
+        
+
+
+        yield return null;
+    }
+
+
+  
+
+    void DrawLine(Edge edge)
+    {
+        LineRenderer line = Instantiate(lineRenderer,transform);
+        Vector3 startPos = new Vector3(edge.a.x, edge.a.y, 0);
+        Vector3 endPos = new Vector3(edge.b.x, edge.b.y, 0);
+
+        line.SetPosition(0, startPos);
+        line.SetPosition(1, endPos);
+    }
 
     /// <summary>
     /// 물리연산 후에 위치를 정수로 변환하기 위해 사용
