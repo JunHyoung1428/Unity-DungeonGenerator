@@ -14,7 +14,7 @@ namespace Delaunay
         /// </summary>
         /// <param name="graph"></param>
         /// <returns></returns>
-        public static List<Edge> MST(IEnumerable <Edge> graph )
+        public static List<Edge> MST( IEnumerable<Edge> graph, int unionRate=25)
         {
             //반환할 최소 신장 트리의 간선들
             List<Edge> mst = new List<Edge>();    
@@ -53,7 +53,7 @@ namespace Delaunay
                 if ( x_par == y_par )
                 {
                     // 1/6 의 확률, 필요시 조정
-                    if ( Random.Range(0, 6) == 0 )
+                    if ( Random.Range(0, 100) < unionRate )
                     {
                         mst.Add(edge);
                     }
