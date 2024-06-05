@@ -6,6 +6,8 @@ using UnityEngine.Tilemaps;
 public class Room : MonoBehaviour
 {
     [SerializeField] Rigidbody2D rigidBody;
+    public Rigidbody2D Rb { get { return rigidBody; } }
+    [SerializeField] CompositeCollider2D composite;
 
     [SerializeField] Tilemap tilemap;
     [SerializeField] TileBase tile;
@@ -14,6 +16,7 @@ public class Room : MonoBehaviour
     [SerializeField] int sizeX;
     [SerializeField] int sizeY;
 
+    public int type = 0; // 1 : Rotatable
 
     Vector3 size;
     public void SetSize( )
@@ -36,6 +39,8 @@ public class Room : MonoBehaviour
         Debug.Log($"Pos : {pos} / StartPos {startPos}, EndPos{endPos}");
         TilemapGenerator.Instance.FillTile(startPos, endPos, tile);
 
+
+        //tilemap.cellBounds <- 로그 찍어볼것
         //tilemap.BoxFill(startPos, tile, startPos.x, startPos.y, endPos.x, endPos.y);
         //tilemap.FloodFill(tilemap.LocalToCell(transform.position), tile);
     }
@@ -50,7 +55,8 @@ public class Room : MonoBehaviour
         rigidBody.bodyType = RigidbodyType2D.Dynamic;
         rigidBody.gravityScale = 0f;
         yield return new WaitForSeconds(waitTime);
-        Destroy(rigidBody);
+        //Destroy(composite);
+        // Destroy(rigidBody);
 
         //FillTile();
         //Destroy(gameObject);
