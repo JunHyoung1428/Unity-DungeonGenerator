@@ -74,6 +74,7 @@ public class DungeonGenerator : MonoBehaviour
     void counterChanged(float value )
     {
         generateRoomCnt = (int)value;
+        selectRoomCnt = (int) (value * 0.8f);
         roomCounttext.text = generateRoomCnt.ToString();
     }
 
@@ -99,6 +100,10 @@ public class DungeonGenerator : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
+        rooms.Clear();
+        points.Clear();
+        selectedRooms.Clear();
     }
 
     public void GenerateDungeon()
@@ -210,7 +215,7 @@ public class DungeonGenerator : MonoBehaviour
             // rooms [i].GetComponent<BoxCollider2D>().isTrigger = true;
             rooms [i].transform.position = new Vector3(RoundPos(rooms [i].transform.position.x, PIXEL), RoundPos(rooms [i].transform.position.y, PIXEL), 1); //정수 단위로 변환
             //Debug.Log($"Translate to int : {rooms [i].transform.position}");
-
+            
             Vector3 scale = rooms [i].transform.localScale;
             float size = scale.x * scale.y; // 방의 크기(넓이) 계산
             float ratio = scale.x / scale.y; // 방의 비율 계산
