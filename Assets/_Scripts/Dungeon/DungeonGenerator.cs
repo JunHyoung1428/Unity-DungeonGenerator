@@ -4,6 +4,7 @@ using UnityEngine;
 using Delaunay;
 using UnityEngine.UI;
 using System.Linq;
+using TMPro;
 
 /// <summary>
 /// Create Dungeon with Delaunay Triangulation(DT) + Minimum Spanning Tree(MST)
@@ -12,7 +13,9 @@ public class DungeonGenerator : MonoBehaviour
 {
     [Header("UI Componets")]
     [SerializeField] Button buttonGen;
-    [SerializeField] Button buttonClear; 
+    [SerializeField] Button buttonClear;
+    [SerializeField] Slider counterSlider;
+    [SerializeField] TextMeshProUGUI text;
 
 
     [Header("Prefabs")]
@@ -49,8 +52,15 @@ public class DungeonGenerator : MonoBehaviour
     {
         buttonGen.onClick.AddListener(GenerateDungeon);
         buttonClear.onClick.AddListener(ClearDungeons);
+        counterSlider.onValueChanged.AddListener(counterChanged);
+        counterChanged(generateRoomCnt);
     }
 
+    void counterChanged(float value )
+    {
+        generateRoomCnt = (int)value;
+        text.text = generateRoomCnt.ToString();
+    }
 
     public void ClearDungeons()
     {
