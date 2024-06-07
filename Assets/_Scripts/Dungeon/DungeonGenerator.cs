@@ -27,7 +27,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField]  LineRenderer graphRenderer; //for Visualize 
 
     [SerializeField]  GameObject doorPrefab; // for test
-    [SerializeField]  LineRenderer corridor;
+    [SerializeField]  List<LineRenderer> corridors;
 
     [Header("Room Settings")]
     [SerializeField] int roomLayer;
@@ -355,8 +355,17 @@ public class DungeonGenerator : MonoBehaviour
     {
         Vector3 startPos = new Vector3(edge.a.x, edge.a.y);
         Vector3 endPos = new Vector3(edge.b.x, edge.b.y);
-        Instantiate(doorPrefab , startPos, Quaternion.identity,transform);
-        Instantiate(doorPrefab, endPos, Quaternion.identity, transform);
+
+        if(startPos == endPos )
+        {
+            Instantiate(doorPrefab, startPos, Quaternion.identity, transform);
+            return;
+        }
+        else
+        {
+            Instantiate(doorPrefab, startPos, Quaternion.identity, transform);
+            Instantiate(doorPrefab, endPos, Quaternion.identity, transform);
+        }
     }
 
     // x,y 좌표 검사해서 수직인지, 수평인지, ㄱ 인지, ㄴ 인지 등 Shape 결정 해서 복도 생성
@@ -365,12 +374,9 @@ public class DungeonGenerator : MonoBehaviour
         Vertex start = edge.a;
         Vertex end = edge.b;
 
-        Debug.Log($"Start {start.x},{start.y} / end {end.x},{end.y}");
-
         Vector2Int size1 = new Vector2Int((int)rooms[map[start.y - minY, start.x - minX]].transform.localScale.x, (int)rooms[map[start.y - minY, start.x - minX]].transform.localScale.y);
         Vector2Int size2 = new Vector2Int((int)rooms[map[end.y - minY, end.x - minX]].transform.localScale.x, (int)rooms[map[end.y - minY, end.x - minX]].transform.localScale.y);
-        Debug.Log($"Size : {size1} , {size2}");
-
+       
         bool isHorizontalOverlap = Mathf.Abs(start.x - end.x) < (( size1.x + size2.x) / 2f - overlapOffset);
         bool isVerticalOverlap = Mathf.Abs(start.y - end.y) < (( size1.y + size2.y) / 2f - overlapOffset);
 
@@ -385,7 +391,8 @@ public class DungeonGenerator : MonoBehaviour
             Vertex newA = new Vertex(startX, startY);
             Vertex newB = new Vertex(endX, startY);
             Edge newEdge = new Edge(newA, newB);
-            DrawLine(corridor, newEdge);
+            DrawLine(corridors [0], newEdge);
+            GenerateDoor(newEdge);
         }
         else if ( isHorizontalOverlap ) // 수직인 경우
         {
@@ -397,14 +404,20 @@ public class DungeonGenerator : MonoBehaviour
             Vertex newA = new Vertex(startX, startY);
             Vertex newB = new Vertex(startX, endY);
             Edge newEdge = new Edge(newA, newB);
-            DrawLine(corridor, newEdge);
+            DrawLine(corridors [0], newEdge);
+            GenerateDoor(newEdge);
         }
         else //offset 벗어나는 경우 ㄱ , ㄴ 꺾이는 복도 생성
         {
 
             // Vertex의 중간점
-            int mapCenterX = map.GetLength(0) / 2;
-            int mapCenterY = map.GetLength(1) / 2;
+            // int mapCenterX = map.GetLength(0) / 2;
+            // int mapCenterY = map.GetLength(1) / 2;
+            int mapCenterX = 0;
+            int mapCenterY = 0;
+
+            Debug.Log($"Map Center {mapCenterX} , {mapCenterY}");
+
 
             // start와 end 사이의 중간점 계산
             int midX = (start.x + end.x) / 2;
@@ -423,12 +436,12 @@ public class DungeonGenerator : MonoBehaviour
                 Vertex verticalA = new Vertex(startX, start.y);
                 Vertex verticalB = new Vertex(startX, endY);
                 Edge verticalEdge = new Edge(verticalA, verticalB);
-                DrawLine(corridor, verticalEdge);
+                DrawLine(corridors [1], verticalEdge);
 
                 Vertex horizontalA = new Vertex(startX, endY);
                 Vertex horizontalB = new Vertex(end.x - size2.x / 2, endY);
                 Edge horizontalEdge = new Edge(horizontalA, horizontalB);
-                DrawLine(corridor, horizontalEdge);
+                DrawLine(corridors [1], horizontalEdge);
             }
             else if ( isRight && !isAbove ) // 4사분면
             {
@@ -438,42 +451,47 @@ public class DungeonGenerator : MonoBehaviour
                 Vertex verticalA = new Vertex(startX, start.y);
                 Vertex verticalB = new Vertex(startX, endY);
                 Edge verticalEdge = new Edge(verticalA, verticalB);
-                DrawLine(corridor, verticalEdge);
+                DrawLine(corridors [4], verticalEdge);
 
                 Vertex horizontalA = new Vertex(startX, endY);
                 Vertex horizontalB = new Vertex(end.x - size2.x / 2, endY);
                 Edge horizontalEdge = new Edge(horizontalA, horizontalB);
-                DrawLine(corridor, horizontalEdge);
+                DrawLine(corridors [4], horizontalEdge);
             }
             else if ( !isRight && isAbove ) // 2사분면
             {
                 int endX = end.x + size2.x / 2;
                 int startY = start.y + size1.y / 2;
 
-                Vertex horizontalA = new Vertex(start.x, startY);
-                Vertex horizontalB = new Vertex(endX, startY);
+                Vertex horizontalA = new Vertex(start.x, end.y - size2.y / 2);
+                Vertex horizontalB = new Vertex(endX, end.y - size2.y / 2);
                 Edge horizontalEdge = new Edge(horizontalA, horizontalB);
-                DrawLine(corridor, horizontalEdge);
+                DrawLine(corridors [2], horizontalEdge);
 
-                Vertex verticalA = new Vertex(endX, startY);
-                Vertex verticalB = new Vertex(endX, end.y - size2.y / 2);
+                Vertex verticalA = new Vertex(start.x, startY);
+                Vertex verticalB = new Vertex(start.x, end.y - size2.y / 2);
                 Edge verticalEdge = new Edge(verticalA, verticalB);
-                DrawLine(corridor, verticalEdge);
+                DrawLine(corridors [2], verticalEdge);
+
+                GenerateDoor(new Edge(horizontalA, verticalB));
             }
             else if ( !isRight && !isAbove ) // 3사분면
             {
                 int endX = end.x + size2.x / 2;
                 int startY = start.y - size1.y / 2;
 
-                Vertex horizontalA = new Vertex(start.x, startY);
-                Vertex horizontalB = new Vertex(endX, startY);
+                Vertex horizontalA = new Vertex(start.x, end.y + size2.y / 2);
+                Vertex horizontalB = new Vertex(endX, end.y + size2.y / 2);
                 Edge horizontalEdge = new Edge(horizontalA, horizontalB);
-                DrawLine(corridor, horizontalEdge);
+                DrawLine(corridors [3], horizontalEdge);
 
-                Vertex verticalA = new Vertex(endX, startY);
-                Vertex verticalB = new Vertex(endX, end.y + size2.y / 2);
+
+                Vertex verticalA = new Vertex(start.x, startY);
+                Vertex verticalB = new Vertex(start.x, end.y + size2.y / 2);
                 Edge verticalEdge = new Edge(verticalA, verticalB);
-                DrawLine(corridor, verticalEdge);
+                DrawLine(corridors [3], verticalEdge);
+
+                GenerateDoor(new Edge(horizontalA, verticalB));
             }
 
             // Case : 2, 3 사분면
