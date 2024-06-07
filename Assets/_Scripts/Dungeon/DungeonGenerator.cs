@@ -442,21 +442,25 @@ public class DungeonGenerator : MonoBehaviour
                 Vertex horizontalB = new Vertex(end.x - size2.x / 2, endY);
                 Edge horizontalEdge = new Edge(horizontalA, horizontalB);
                 DrawLine(corridors [1], horizontalEdge);
+
+                GenerateDoor(new Edge(horizontalB, verticalA));
             }
             else if ( isRight && !isAbove ) // 4사분면
             {
                 int startX = start.x + size1.x / 2;
                 int endY = end.y + size2.y / 2;
 
-                Vertex verticalA = new Vertex(startX, start.y);
-                Vertex verticalB = new Vertex(startX, endY);
+                Vertex verticalA = new Vertex(end.x - size2.x / 2, start.y);
+                Vertex verticalB = new Vertex(end.x - size2.x / 2, endY);
                 Edge verticalEdge = new Edge(verticalA, verticalB);
                 DrawLine(corridors [4], verticalEdge);
 
-                Vertex horizontalA = new Vertex(startX, endY);
-                Vertex horizontalB = new Vertex(end.x - size2.x / 2, endY);
+                Vertex horizontalA = new Vertex(startX, start.y);
+                Vertex horizontalB = new Vertex(end.x - size2.x / 2, start.y);
                 Edge horizontalEdge = new Edge(horizontalA, horizontalB);
                 DrawLine(corridors [4], horizontalEdge);
+
+                GenerateDoor(new Edge(horizontalB , verticalA));
             }
             else if ( !isRight && isAbove ) // 2사분면
             {
