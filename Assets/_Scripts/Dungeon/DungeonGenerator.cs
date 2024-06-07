@@ -41,10 +41,7 @@ public class DungeonGenerator : MonoBehaviour
     [Space(10)]
     [SerializeField] protected int smallMinRoomSize;
     [SerializeField] protected int smallMaxRoomSize;
-    [SerializeField] protected int overlapOffset;
-
-
-    [SerializeField] int offSet; // 복도 생성시 보정에 들어갈 offSet
+    [SerializeField] protected int overlapOffset;     // 복도 생성시 보정에 들어갈 offSet
 
     [Space(10)]
     [Range(0,100)]
@@ -61,6 +58,8 @@ public class DungeonGenerator : MonoBehaviour
     private List<Edge> hallwayEdges;
 
     [SerializeField] int [,] map; // 맵
+    int minX = int.MaxValue, minY = int.MaxValue;
+    int maxX = int.MinValue, maxY = int.MinValue;
 
     void Awake()
     {
@@ -264,8 +263,10 @@ public class DungeonGenerator : MonoBehaviour
     private void GenerateMapArray()
     {
         // 배열 크기 결정을 위한 최소/최대 좌표 초기화
-        int minX = int.MaxValue, minY = int.MaxValue;
-        int maxX = int.MinValue, maxY = int.MinValue;
+        minX = int.MaxValue;
+        minY = int.MaxValue;
+        maxX = int.MinValue;
+        maxY = int.MinValue;
 
         // 최소/최대 좌표 탐색
         foreach ( var room in rooms )
@@ -305,6 +306,8 @@ public class DungeonGenerator : MonoBehaviour
             }
         }
 
+        Debug.Log($"map Size : {width}, {height}");
+
         StartCoroutine(ConnectRooms());
     }
 
@@ -327,21 +330,15 @@ public class DungeonGenerator : MonoBehaviour
         yield return null;
     }
 
+    GameObject corriderParent;
 
     IEnumerator GenerateHallways(IEnumerable <Edge> tree)
     {
         Debug.Log("Hallways Start");
         // edge 순회해서 양 끝 지점에 현관, 복도 생성하는 메서드
-        Vector2Int size1 = new Vector2Int(2, 2);
-        Vector2Int size2 = new Vector2Int(2, 2);
-
 
         foreach ( var edge in tree )
         {
-          
-            //양 끝 지점에 현관(문) 생성
-            GenerateDoor(edge); 
-
             //복도생성은 여기에
             GenerateCorrider(edge);
         }
@@ -368,42 +365,37 @@ public class DungeonGenerator : MonoBehaviour
         Vertex start = edge.a;
         Vertex end = edge.b;
 
-        size1 = new Vector2Int((int)rooms[map[start.y - minY, start.x - minX]].transform.localScale.x, (int)rooms[map[start.y - minY, start.x - minX]].transform.localScale.y);
-        size2 = new Vector2Int((int)rooms[map[end.y - minY, end.x - minX]].transform.localScale.x, (int)rooms[map[end.y - minY, end.x - minX]].transform.localScale.y);
+        Debug.Log($"Start {start.x},{start.y} / end {end.x},{end.y}");
 
+        Vector2Int size1 = new Vector2Int((int)rooms[map[start.y - minY, start.x - minX]].transform.localScale.x, (int)rooms[map[start.y - minY, start.x - minX]].transform.localScale.y);
+        Vector2Int size2 = new Vector2Int((int)rooms[map[end.y - minY, end.x - minX]].transform.localScale.x, (int)rooms[map[end.y - minY, end.x - minX]].transform.localScale.y);
+        Debug.Log($"Size : {size1} , {size2}");
 
-        bool isHorizontalOverlap = Mathf.Abs(start.x - end.x) < ((startSize.x + endSize.x) / 2f - overlapOffset);
-        bool isVerticalOverlap = Mathf.Abs(start.y - end.y) < ((startSize.y + endSize.y) / 2f - overlapOffset);
+        bool isHorizontalOverlap = Mathf.Abs(start.x - end.x) < (( size1.x + size2.x) / 2f - overlapOffset);
+        bool isVerticalOverlap = Mathf.Abs(start.y - end.y) < (( size1.y + size2.y) / 2f - overlapOffset);
 
 
         if (isVerticalOverlap) // 수평인 경우 ,offset 만큼은 보정해서 생성해줘야함
         {
-            int startY = Mathf.Min(start.y + startSize.y / 2, end.y + endSize.y / 2) + Mathf.Max(start.y - startSize.y / 2, end.y - endSize.y / 2);
+            int startY = Mathf.Min(start.y + size1.y / 2, end.y + size2.y / 2) + Mathf.Max(start.y - size1.y / 2, end.y - size2.y / 2);
             startY = startY / 2;
-            for (int x = Mathf.Min(start.x + startSize.x / 2, end.x + endSize.x / 2); x <= Mathf.Max(start.x - startSize.x / 2, end.x - endSize.x / 2); x++)
-            {
-                //InstantiateGrid(x, startY);
-            }
+            int startX = Mathf.Min(start.x + size1.x / 2, end.x + size2.x / 2);
+            int endX = Mathf.Max(start.x - size1.x / 2, end.x - size2.x / 2);
 
-
-
-            Vertex newA = new Vertex(start.x + offSet/2, start.y); //+ 할지 - 할지 있다가 수정
-            Vertex newB = new Vertex(end.x - offSet / 2, end.y);
+            Vertex newA = new Vertex(startX, startY);
+            Vertex newB = new Vertex(endX, startY);
             Edge newEdge = new Edge(newA, newB);
-            DrawLine(corridor ,newEdge);
+            DrawLine(corridor, newEdge);
         }
-        else if (isVerticalOverlap) // 수직인 경우
+        else if ( isHorizontalOverlap ) // 수직인 경우
         {
-            int startX = Mathf.Min(start.x + startSize.x / 2, end.x + endSize.x / 2) + Mathf.Max(start.x - startSize.x / 2, end.x - endSize.x / 2);
+            int startX = Mathf.Min(start.x + size1.x / 2, end.x + size2.x / 2) + Mathf.Max(start.x - size1.x / 2, end.x - size2.x / 2);
             startX = startX / 2;
-            for (int y = Mathf.Min(start.y + startSize.y / 2, end.y + endSize.y / 2); y <= Mathf.Max(start.y - startSize.y / 2, end.y - endSize.y / 2); y++)
-            {
-                InstantiateGrid(startX, y);
-            }
+            int startY = Mathf.Min(start.y + size1.y / 2, end.y + size2.y / 2);
+            int endY = Mathf.Max(start.y - size1.y / 2, end.y - size2.y / 2);
 
-
-            Vertex newA = new Vertex(start.x , start.y + offSet / 2); //+ 할지 - 할지 있다가 수정
-            Vertex newB = new Vertex(end.x, end.y - offSet / 2);
+            Vertex newA = new Vertex(startX, startY);
+            Vertex newB = new Vertex(startX, endY);
             Edge newEdge = new Edge(newA, newB);
             DrawLine(corridor, newEdge);
         }
@@ -418,16 +410,79 @@ public class DungeonGenerator : MonoBehaviour
             int midX = (start.x + end.x) / 2;
             int midY = (start.y + end.y) / 2;
 
-
-            //  사실상 복도 두개 
-
-            // 꺾이는 방향? 결정은?
-
             // -> 중간점이 전체 맵의 중심점에 비해 어느 사분면인지 파악
 
-            // 2, 3 사분면 -> 가로 그리기 -> 세로 그리기
+            bool isRight = midX >= mapCenterX;
+            bool isAbove = midY >= mapCenterY;
 
-            // 1, 4 사분면 -> 세로 그리기 -> 가로 그리기
+            if ( isRight && isAbove ) // 1사분면
+            {
+                int startX = start.x + size1.x / 2;
+                int endY = end.y - size2.y / 2;
+
+                Vertex verticalA = new Vertex(startX, start.y);
+                Vertex verticalB = new Vertex(startX, endY);
+                Edge verticalEdge = new Edge(verticalA, verticalB);
+                DrawLine(corridor, verticalEdge);
+
+                Vertex horizontalA = new Vertex(startX, endY);
+                Vertex horizontalB = new Vertex(end.x - size2.x / 2, endY);
+                Edge horizontalEdge = new Edge(horizontalA, horizontalB);
+                DrawLine(corridor, horizontalEdge);
+            }
+            else if ( isRight && !isAbove ) // 4사분면
+            {
+                int startX = start.x + size1.x / 2;
+                int endY = end.y + size2.y / 2;
+
+                Vertex verticalA = new Vertex(startX, start.y);
+                Vertex verticalB = new Vertex(startX, endY);
+                Edge verticalEdge = new Edge(verticalA, verticalB);
+                DrawLine(corridor, verticalEdge);
+
+                Vertex horizontalA = new Vertex(startX, endY);
+                Vertex horizontalB = new Vertex(end.x - size2.x / 2, endY);
+                Edge horizontalEdge = new Edge(horizontalA, horizontalB);
+                DrawLine(corridor, horizontalEdge);
+            }
+            else if ( !isRight && isAbove ) // 2사분면
+            {
+                int endX = end.x + size2.x / 2;
+                int startY = start.y + size1.y / 2;
+
+                Vertex horizontalA = new Vertex(start.x, startY);
+                Vertex horizontalB = new Vertex(endX, startY);
+                Edge horizontalEdge = new Edge(horizontalA, horizontalB);
+                DrawLine(corridor, horizontalEdge);
+
+                Vertex verticalA = new Vertex(endX, startY);
+                Vertex verticalB = new Vertex(endX, end.y - size2.y / 2);
+                Edge verticalEdge = new Edge(verticalA, verticalB);
+                DrawLine(corridor, verticalEdge);
+            }
+            else if ( !isRight && !isAbove ) // 3사분면
+            {
+                int endX = end.x + size2.x / 2;
+                int startY = start.y - size1.y / 2;
+
+                Vertex horizontalA = new Vertex(start.x, startY);
+                Vertex horizontalB = new Vertex(endX, startY);
+                Edge horizontalEdge = new Edge(horizontalA, horizontalB);
+                DrawLine(corridor, horizontalEdge);
+
+                Vertex verticalA = new Vertex(endX, startY);
+                Vertex verticalB = new Vertex(endX, end.y + size2.y / 2);
+                Edge verticalEdge = new Edge(verticalA, verticalB);
+                DrawLine(corridor, verticalEdge);
+            }
+
+            // Case : 2, 3 사분면
+            //  step 1: 가로 그리기
+            //  step 2: 세로 그리기
+
+            // Case : 1, 4 사분면
+            //  step 1: 세로 그리기
+            //  step 2: 가로 그리기
         }
 
     }
