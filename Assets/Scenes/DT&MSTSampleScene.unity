@@ -3658,7 +3658,12 @@ MonoBehaviour:
   roomPrefab: {fileID: 6293823128992485547, guid: 0e3951d3af22b814f836b33c116a2d21, type: 3}
   graphRenderer: {fileID: 3210212285798623098, guid: 92b3b54a50627b34eb493e9317454719, type: 3}
   doorPrefab: {fileID: 7746263379588475616, guid: b2973571cab92fb459ed2c2149c4af08, type: 3}
-  corridor: {fileID: 3210212285798623098, guid: 4fa312037d7764548bce040f0f0817cb, type: 3}
+  corridors:
+  - {fileID: 3210212285798623098, guid: 4fa312037d7764548bce040f0f0817cb, type: 3}
+  - {fileID: 3210212285798623098, guid: 838f8f0171d6aac4992c0db9679accb7, type: 3}
+  - {fileID: 3210212285798623098, guid: 4b55fc133b60e624db297e1d51132bca, type: 3}
+  - {fileID: 3210212285798623098, guid: aed4f5daa2ecd834bbed2b0800639c8f, type: 3}
+  - {fileID: 3210212285798623098, guid: 1b796c7a0a0e06e42a17e4d5377bd5b5, type: 3}
   roomLayer: 1
   generateRoomCnt: 50
   selectRoomCnt: 30
@@ -4133,7 +4138,7 @@ MonoBehaviour:
   roomPrefab: {fileID: 0}
   graphRenderer: {fileID: 0}
   doorPrefab: {fileID: 0}
-  corridor: {fileID: 0}
+  corridors: []
   roomLayer: 0
   generateRoomCnt: 0
   selectRoomCnt: 0

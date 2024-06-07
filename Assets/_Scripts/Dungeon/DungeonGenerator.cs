@@ -473,7 +473,7 @@ public class DungeonGenerator : MonoBehaviour
                 Edge verticalEdge = new Edge(verticalA, verticalB);
                 DrawLine(corridors [2], verticalEdge);
 
-                GenerateDoor(new Edge(horizontalA, verticalB));
+                GenerateDoor(new Edge(horizontalB, verticalA));
             }
             else if ( !isRight && !isAbove ) // 3사분면
             {
@@ -491,7 +491,7 @@ public class DungeonGenerator : MonoBehaviour
                 Edge verticalEdge = new Edge(verticalA, verticalB);
                 DrawLine(corridors [3], verticalEdge);
 
-                GenerateDoor(new Edge(horizontalA, verticalB));
+                GenerateDoor(new Edge(horizontalB, verticalA));
             }
 
             // Case : 2, 3 사분면
