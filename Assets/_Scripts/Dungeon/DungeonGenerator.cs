@@ -443,7 +443,7 @@ public class DungeonGenerator : MonoBehaviour
                 Edge horizontalEdge = new Edge(horizontalA, horizontalB);
                 DrawLine(corridors [1], horizontalEdge);
 
-                GenerateDoor(new Edge(horizontalB, verticalA));
+                GenerateDoor(new Edge(verticalB, horizontalA));
             }
             else if ( isRight && !isAbove ) // 4사분면
             {
@@ -460,7 +460,7 @@ public class DungeonGenerator : MonoBehaviour
                 Edge horizontalEdge = new Edge(horizontalA, horizontalB);
                 DrawLine(corridors [4], horizontalEdge);
 
-                GenerateDoor(new Edge(horizontalB , verticalA));
+                GenerateDoor(new Edge(verticalB, horizontalA));
             }
             else if ( !isRight && isAbove ) // 2사분면
             {
@@ -497,14 +497,6 @@ public class DungeonGenerator : MonoBehaviour
 
                 GenerateDoor(new Edge(horizontalB, verticalA));
             }
-
-            // Case : 2, 3 사분면
-            //  step 1: 가로 그리기
-            //  step 2: 세로 그리기
-
-            // Case : 1, 4 사분면
-            //  step 1: 세로 그리기
-            //  step 2: 가로 그리기
         }
 
     }
