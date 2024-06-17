@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Delaunay
 {
@@ -13,6 +14,28 @@ namespace Delaunay
             this.y = y;
         }
 
+        public Vertex( Vector2 vector )
+        {
+            this.x = ( int ) vector.x;
+            this.y = ( int ) vector.y;
+        }
+
+        public Vertex( Vector3 vector )
+        {
+            x = ( int ) vector.x;
+            y = ( int ) vector.y;
+        }
+
+        public Vertex( Vector2Int vector )
+        {
+            this.x = vector.x;
+            this.y = vector.y;
+        }
+
+        public Vector3 GetVertex()
+        {
+            return new Vector3( x, y,0);
+        }
 
         /*****************************************
          *             Override Methods
@@ -32,7 +55,7 @@ namespace Delaunay
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(x, y); 
+            return HashCode.Combine(x, y);
         }
         #endregion
         /*****************************************
